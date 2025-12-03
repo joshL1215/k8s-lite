@@ -6,6 +6,10 @@ import (
 	"github.com/joshL1215/k8s-lite/pkg/api"
 )
 
+func podKey(pod *api.Pod) string {
+	return fmt.Sprintf("%s/%s", pod.Namespace, pod.Name)
+}
+
 // CreatePod
 func (s *InMemoryStore) CreatePod(pod *api.Pod) error {
 	s.mutex.Lock()

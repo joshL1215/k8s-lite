@@ -4,7 +4,6 @@
 package store
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/joshL1215/k8s-lite/pkg/api"
@@ -21,8 +20,4 @@ func CreateInMemoryStore() *InMemoryStore {
 		pods: make(map[string]*api.Pod),
 		// TODO: nodes later
 	}
-}
-
-func podKey(pod *api.Pod) string {
-	return fmt.Sprintf("%s/%s", pod.Namespace, pod.Name)
 }
