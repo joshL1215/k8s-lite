@@ -12,5 +12,9 @@ type StoreInterface interface {
 	DeletePod(namespace, name string) error
 	ListPods(namespace string) ([]*api.Pod, error)
 
-	// node methods
+	CreateNode(node *api.Node) error
+	GetNode(name string) (*api.Node, error)
+	UpdateNode(node *api.Node) error
+	DeleteNode(name string) error
+	ListNodes() ([]*api.Node, error)
 }
