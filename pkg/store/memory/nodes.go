@@ -51,8 +51,8 @@ func (s *InMemoryStore) DeleteNode(name string) error {
 }
 
 func (s *InMemoryStore) ListNodes() ([]*api.Node, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	nodeList := make([]*api.Node, 0)
 	for _, node := range s.nodes {

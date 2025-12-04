@@ -26,8 +26,8 @@ func (s *InMemoryStore) CreatePod(pod *api.Pod) error {
 
 // GetPod
 func (s *InMemoryStore) GetPod(namespace, name string) (*api.Pod, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	key := podKey(namespace, name)
 	pod, exists := s.pods[key]
@@ -84,8 +84,8 @@ func (s *InMemoryStore) DeletePod(namespace, name string) error {
 
 // ListPods
 func (s *InMemoryStore) ListPods(namespace string) ([]*api.Pod, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	podList := make([]*api.Pod, 0, len(s.pods))
 	for _, pod := range s.pods {
