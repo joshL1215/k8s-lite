@@ -1,14 +1,11 @@
-package main
+package apiserver
 
 import (
 	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joshL1215/k8s-lite/pkg/store"
-	"github.com/joshL1215/k8s-lite/pkg/store/memory"
 )
-
-const DefaultPort = "8080"
 
 type APIServer struct {
 	router *gin.Engine
@@ -36,10 +33,4 @@ func CreateAPIServer(s store.StoreInterface) *APIServer {
 	}
 	// apiServer.registerRoutes()
 	return apiServer
-}
-
-func main() {
-	dataStore := memory.CreateInMemoryStore()
-	apiServer := CreateAPIServer(dataStore)
-	apiServer.Serve(":" + DefaultPort)
 }
