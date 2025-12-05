@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/joshL1215/k8s-lite/cmd/apiserver"
-	"github.com/joshL1215/k8s-lite/pkg/store/memory"
+	"github.com/joshL1215/k8s-lite/internal/apiserver"
+	"github.com/joshL1215/k8s-lite/internal/store/memory"
 )
 
 const DefaultPort = "8080"

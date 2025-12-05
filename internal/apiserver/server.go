@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joshL1215/k8s-lite/pkg/store"
+	"github.com/joshL1215/k8s-lite/internal/store"
 )
 
 type APIServer struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/joshL1215/k8s-lite/pkg/api"
+	"github.com/joshL1215/k8s-lite/internal/models"
 )
 
 func podKey(namespace, name string) string {
@@ -12,7 +12,7 @@ func podKey(namespace, name string) string {
 }
 
 // CreatePod
-func (s *InMemoryStore) CreatePod(pod *api.Pod) error {
+func (s *InMemoryStore) CreatePod(pod *models.Pod) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -25,7 +25,7 @@ func (s *InMemoryStore) CreatePod(pod *api.Pod) error {
 }
 
 // GetPod
-func (s *InMemoryStore) GetPod(namespace, name string) (*api.Pod, error) {
+func (s *InMemoryStore) GetPod(namespace, name string) (*models.Pod, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
@@ -38,7 +38,7 @@ func (s *InMemoryStore) GetPod(namespace, name string) (*api.Pod, error) {
 }
 
 // UpdatePod
-func (s *InMemoryStore) UpdatePod(pod *api.Pod) error {
+func (s *InMemoryStore) UpdatePod(pod *models.Pod) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -77,17 +77,17 @@ func (s *InMemoryStore) DeletePod(namespace, name string) error {
 	}
 	currTime := time.Now()
 	currPod.DeletionTimestamp = &currTime
-	currPod.Phase = api.PodTerminating
+	currPod.Phase = models.PodTerminating
 	s.pods[key] = currPod
 	return nil
 }
 
 // ListPods
-func (s *InMemoryStore) ListPods(namespace string) ([]*api.Pod, error) {
+func (s *InMemoryStore) ListPods(namespace string) ([]*models.Pod, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	podList := make([]*api.Pod, 0, len(s.pods))
+	podList := make([]*models.Pod, 0, len(s.pods))
 	for _, pod := range s.pods {
 		if pod.Namespace == namespace {
 			podList = append(podList, pod)

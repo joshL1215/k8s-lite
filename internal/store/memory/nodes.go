@@ -3,10 +3,10 @@ package memory
 import (
 	"fmt"
 
-	"github.com/joshL1215/k8s-lite/pkg/api"
+	"github.com/joshL1215/k8s-lite/internal/models"
 )
 
-func (s *InMemoryStore) CreateNode(node *api.Node) error {
+func (s *InMemoryStore) CreateNode(node *models.Node) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -17,9 +17,9 @@ func (s *InMemoryStore) CreateNode(node *api.Node) error {
 	return nil
 }
 
-func (s *InMemoryStore) GetNode(name string) (*api.Node, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+func (s *InMemoryStore) GetNode(name string) (*models.Node, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	node, exists := s.nodes[name]
 	if !exists {
@@ -28,7 +28,7 @@ func (s *InMemoryStore) GetNode(name string) (*api.Node, error) {
 	return node, nil
 }
 
-func (s *InMemoryStore) UpdateNode(node *api.Node) error {
+func (s *InMemoryStore) UpdateNode(node *models.Node) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -50,11 +50,11 @@ func (s *InMemoryStore) DeleteNode(name string) error {
 	return nil
 }
 
-func (s *InMemoryStore) ListNodes() ([]*api.Node, error) {
+func (s *InMemoryStore) ListNodes() ([]*models.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	nodeList := make([]*api.Node, 0)
+	nodeList := make([]*models.Node, 0)
 	for _, node := range s.nodes {
 		nodeList = append(nodeList, node)
 	}
