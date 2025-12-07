@@ -7,6 +7,8 @@ import (
 	"github.com/joshL1215/k8s-lite/internal/store"
 )
 
+const DefaultNamespace = "default"
+
 type APIServer struct {
 	router *gin.Engine
 	store  store.StoreInterface // having an interface here makes it store-implementation-agnostic
