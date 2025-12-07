@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/joshL1215/k8s-lite/internal/models"
+	"github.com/joshL1215/k8s-lite/internal/store"
 )
 
 func podKey(namespace, name string) string {
@@ -18,7 +19,7 @@ func (s *InMemoryStore) CreatePod(pod *models.Pod) error {
 
 	key := podKey(pod.Namespace, pod.Name)
 	if _, exists := s.pods[key]; exists {
-		return fmt.Errorf("pod %s already exists in namespace %s", pod.Name, pod.Namespace)
+		return fmt.Errorf("%w: pod %s already exists in namespace %s", store.ErrPodExists, pod.Name, pod.Namespace)
 	}
 	s.pods[key] = pod
 	return nil
@@ -32,7 +33,7 @@ func (s *InMemoryStore) GetPod(namespace, name string) (*models.Pod, error) {
 	key := podKey(namespace, name)
 	pod, exists := s.pods[key]
 	if !exists {
-		return nil, fmt.Errorf("no pod with name %s exists in namespace %s", name, namespace)
+		return nil, fmt.Errorf("%w :no pod with name %s exists in namespace %s", store.ErrPodNotExist, name, namespace)
 	}
 	return pod, nil
 }
@@ -45,11 +46,11 @@ func (s *InMemoryStore) UpdatePod(pod *models.Pod) error {
 	key := podKey(pod.Namespace, pod.Name)
 	currPod, exists := s.pods[key]
 	if !exists {
-		return fmt.Errorf("no pod with name %s exists in namespace %s", pod.Namespace, pod.Name)
+		return fmt.Errorf("%w: no pod with name %s exists in namespace %s", store.ErrPodNotExist, pod.Namespace, pod.Name)
 	}
 
 	if currPod.DeletionTimestamp != nil {
-		return fmt.Errorf("cannot update pod %s in namespace %s, it is being deleted", pod.Namespace, pod.Name)
+		return fmt.Errorf("%w: cannot update pod %s in namespace %s, it is being deleted", store.ErrPodIsDeleting, pod.Namespace, pod.Name)
 	}
 
 	s.pods[key] = pod
@@ -69,11 +70,11 @@ func (s *InMemoryStore) DeletePod(namespace, name string) error {
 	key := podKey(namespace, name)
 	currPod, exists := s.pods[key]
 	if !exists {
-		return fmt.Errorf("no pod with name %s exists in namespace %s", namespace, name)
+		return fmt.Errorf("%w: no pod with name %s exists in namespace %s", store.ErrPodNotExist, namespace, name)
 	}
 
 	if currPod.DeletionTimestamp != nil {
-		return fmt.Errorf("cannot delete pod %s in namespace %s, it is already being deleted", namespace, name)
+		return fmt.Errorf("%w: cannot delete pod %s in namespace %s, it is already being deleted", store.ErrPodIsDeleting, namespace, name)
 	}
 	currTime := time.Now()
 	currPod.DeletionTimestamp = &currTime

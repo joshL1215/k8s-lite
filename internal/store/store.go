@@ -1,6 +1,14 @@
 package store
 
-import "github.com/joshL1215/k8s-lite/internal/models"
+import (
+	"errors"
+
+	"github.com/joshL1215/k8s-lite/internal/models"
+)
+
+var ErrPodExists = errors.New("pod already exists")
+var ErrPodNotExist = errors.New("pod of this name does not exist")
+var ErrPodIsDeleting = errors.New("pod is already being deleted")
 
 // Defines an agnostic store interface
 type StoreInterface interface {
