@@ -21,18 +21,22 @@ func (s *APIServer) Serve(port string) {
 	}
 }
 
-// func (s *APIServer) registerRoutes() {
-// 	podsGroup := s.router.Group("/api/v1/namespace/:namespace/pods") // version APIs for backwards compatability
-// 	{
-
-// 	}
-// }
+func (s *APIServer) registerRoutes() {
+	podsGroup := s.router.Group("/api/v1/namespace/:namespace/pods") // version APIs for backwards compatability
+	{
+		podsGroup.POST("", s.createPodHandler)
+		podsGroup.GET("", s.listPodsHandler)
+		podsGroup.GET("/:podname", s.getPodHandler)
+		podsGroup.PUT("/:podname", s.updatePodHandler)
+		podsGroup.DELETE(":/podname", s.deletePodHandler)
+	}
+}
 
 func CreateAPIServer(s store.StoreInterface) *APIServer {
 	apiServer := &APIServer{
 		router: gin.Default(),
 		store:  s,
 	}
-	// apiServer.registerRoutes()
+	apiServer.registerRoutes()
 	return apiServer
 }
