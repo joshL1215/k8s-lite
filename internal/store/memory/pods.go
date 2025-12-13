@@ -46,7 +46,7 @@ func (s *InMemoryStore) UpdatePod(pod *models.Pod) error {
 	key := podKey(pod.Namespace, pod.Name)
 	currPod, exists := s.pods[key]
 	if !exists {
-		return fmt.Errorf("%w: no pod with name %s exists in namespace %s", store.ErrPodNotExist, pod.Namespace, pod.Name)
+		return fmt.Errorf("%w: no pod with name %s exists in namespace %s", store.ErrPodNotExist, pod.Name, pod.Namespace)
 	}
 
 	if currPod.DeletionTimestamp != nil {

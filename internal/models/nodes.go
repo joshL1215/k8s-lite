@@ -5,7 +5,7 @@ type NodeStatus string
 
 const (
 	NodeReady    NodeStatus = "Ready"
-	NodeNotReady NodeStatus = "Ready"
+	NodeNotReady NodeStatus = "NotReady"
 )
 
 type Node struct {

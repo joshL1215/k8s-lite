@@ -80,7 +80,7 @@ func (s *APIServer) updateNodeHandler(c *gin.Context) {
 func (s *APIServer) deleteNodeHandler(c *gin.Context) {
 	name := c.Param("nodename")
 
-	if _, err := s.store.GetNode(name); err != nil {
+	if err := s.store.DeleteNode(name); err != nil {
 		log.Printf("Error deleting node %s: %v", name, err)
 		if errors.Is(err, store.ErrNodeNotExist) {
 			c.JSON(404, gin.H{"error": "Node not found for deletion", "detail": err.Error()})

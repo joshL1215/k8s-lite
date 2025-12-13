@@ -54,6 +54,7 @@ func (s *APIServer) getPodHandler(c *gin.Context) {
 
 func (s *APIServer) updatePodHandler(c *gin.Context) {
 	namespace := c.Param("namespace")
+	originalName := c.Param("podname")
 
 	var pod models.Pod
 	if err := c.ShouldBindJSON(&pod); err != nil {
@@ -65,12 +66,13 @@ func (s *APIServer) updatePodHandler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "A pod name must be provided"})
 		return
 	}
+
 	if pod.Namespace != namespace {
 		c.JSON(400, gin.H{"error": fmt.Sprintf("No pod named %s in specified namespace %s", pod.Name, namespace)})
 		return
 	}
 
-	if _, err := s.store.GetPod(namespace, pod.Name); err != nil {
+	if _, err := s.store.GetPod(namespace, originalName); err != nil {
 		c.JSON(404, gin.H{"error": "Pod does not exist", "detail": err.Error()})
 		return
 	}
@@ -88,7 +90,7 @@ func (s *APIServer) deletePodHandler(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("podname")
 
-	if _, err := s.store.GetPod(namespace, name); err != nil {
+	if err := s.store.DeletePod(namespace, name); err != nil {
 		log.Printf("Error deleting pod %s/%s: %v", namespace, name, err)
 		if errors.Is(err, store.ErrPodNotExist) {
 			c.JSON(404, gin.H{"error": "Pod not found for deletion", "detail": err.Error()})
