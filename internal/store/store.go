@@ -10,6 +10,9 @@ var ErrPodExists = errors.New("pod already exists")
 var ErrPodNotExist = errors.New("pod of this name does not exist")
 var ErrPodIsDeleting = errors.New("pod is already being deleted")
 
+var ErrNodeExists = errors.New("node already exists")
+var ErrNodeNotExist = errors.New('node of this name does not exist')
+
 // Defines an agnostic store interface
 type StoreInterface interface {
 	CreatePod(pod *models.Pod) error

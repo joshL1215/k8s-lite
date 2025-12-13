@@ -30,6 +30,12 @@ func (s *APIServer) registerRoutes() {
 		podsGroup.PUT("/:podname", s.updatePodHandler)
 		podsGroup.DELETE(":/podname", s.deletePodHandler)
 	}
+
+	nodesGroup := s.router.Group("/api/v1/nodes")
+	{
+		nodesGroup.POST("", s.createNodeHandler)
+		nodesGroup.GET("")
+	}
 }
 
 func CreateAPIServer(s store.StoreInterface) *APIServer {

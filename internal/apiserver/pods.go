@@ -76,7 +76,7 @@ func (s *APIServer) updatePodHandler(c *gin.Context) {
 	}
 
 	if err := s.store.UpdatePod(&pod); err != nil {
-		log.Printf("Failed to update pod: %s", err)
+		log.Printf("Failed to update pod: %v", err)
 		c.JSON(500, gin.H{"error": "Failed to update pod", "detail": err.Error()})
 		return
 	}
@@ -99,7 +99,7 @@ func (s *APIServer) deletePodHandler(c *gin.Context) {
 	}
 
 	log.Printf("Pod %s/%s successfuly set for deletion", namespace, name)
-	c.JSON(200, gin.H{"message": fmt.Sprintf("Pod %s/%S successfully set for deletion", namespace, name)})
+	c.JSON(200, gin.H{"message": fmt.Sprintf("Pod %s/%s successfully set for deletion", namespace, name)})
 }
 
 func (s *APIServer) listPodsHandler(c *gin.Context) {
