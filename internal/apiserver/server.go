@@ -28,13 +28,16 @@ func (s *APIServer) registerRoutes() {
 		podsGroup.GET("", s.listPodsHandler)
 		podsGroup.GET("/:podname", s.getPodHandler)
 		podsGroup.PUT("/:podname", s.updatePodHandler)
-		podsGroup.DELETE(":/podname", s.deletePodHandler)
+		podsGroup.DELETE(":podname", s.deletePodHandler)
 	}
 
 	nodesGroup := s.router.Group("/api/v1/nodes")
 	{
 		nodesGroup.POST("", s.createNodeHandler)
-		nodesGroup.GET("")
+		nodesGroup.GET("", s.listNodesHandler)
+		nodesGroup.GET("/:nodename", s.getNodeHandler)
+		nodesGroup.PUT("/:nodename", s.updateNodeHandler)
+		nodesGroup.DELETE("/:nodename", s.deleteNodeHandler)
 	}
 }
 
