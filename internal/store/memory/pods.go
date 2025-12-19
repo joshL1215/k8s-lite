@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/joshL1215/k8s-lite/internal/models"
+	"github.com/joshL1215/k8s-lite/internal/api/models"
 	"github.com/joshL1215/k8s-lite/internal/store"
 )
 

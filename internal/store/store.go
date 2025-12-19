@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/joshL1215/k8s-lite/internal/models"
+	"github.com/joshL1215/k8s-lite/internal/api/models"
 )
 
 var ErrPodExists = errors.New("pod already exists")
