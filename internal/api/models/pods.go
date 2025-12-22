@@ -4,14 +4,14 @@ import "time"
 
 // how enums are done in Go
 // Pod phase
-type Phase string
+type PodPhase string
 
 const (
-	PodPending     Phase = "Pending"
-	PodScheduled   Phase = "Scheduled"
-	PodRunning     Phase = "Running"
-	PodTerminating Phase = "Terminating"
-	PodDeleted     Phase = "Deleted"
+	PodPending     PodPhase = "Pending"
+	PodScheduled   PodPhase = "Scheduled"
+	PodRunning     PodPhase = "Running"
+	PodTerminating PodPhase = "Terminating"
+	PodDeleted     PodPhase = "Deleted"
 )
 
 type Pod struct {
@@ -19,6 +19,6 @@ type Pod struct {
 	Namespace         string     `json:"namespace"`
 	Image             string     `json:"image"`
 	NodeName          string     `json:"nodeName,omitempty"`
-	Phase             Phase      `json:"phase"`
+	Phase             PodPhase   `json:"phase"`
 	DeletionTimestamp *time.Time `json:"deleteTime,omitempty"`
 }
