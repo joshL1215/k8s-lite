@@ -162,3 +162,125 @@ func (c *Client) updateNode(node *models.Node) (*models.Node, error) {
 }
 
 // Pod operations from client
+
+func (c *Client) createPod(pod *models.Pod) (*models.Pod, error) {
+	body, err := json.Marshal(pod)
+	if err != nil {
+		return nil, fmt.Errorf("error while marshalling pod: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", c.buildURL("pods"), bytes.NewBuffer(body))
+	if err != nil {
+		return nil, fmt.Errorf("error while creating POST request to create pod: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while making POST request to create pod: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("failed to create pod, status code: %d", resp.StatusCode)
+	}
+
+	var createdPod models.Pod
+	if err := json.NewDecoder(resp.Body).Decode(&createdPod); err != nil {
+		return nil, fmt.Errorf("error while decoding response body: %w", err)
+	}
+	return &createdPod, nil
+}
+
+func (c *Client) getPod(podName string) (*models.Pod, error) {
+	req, err := http.NewRequest("GET", c.buildURL("pods", podName), nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while creating GET request to fetch pod: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while making GET request to fetch pod: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch pod, status code: %d", resp.StatusCode)
+	}
+
+	var fetchedPod models.Pod
+	if err := json.NewDecoder(resp.Body).Decode(&fetchedPod); err != nil {
+		return nil, fmt.Errorf("error while decoding response body: %w", err)
+	}
+	return &fetchedPod, nil
+}
+
+func (c *Client) listPods() ([]models.Pod, error) {
+	req, err := http.NewRequest("GET", c.buildURL("pods"), nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while creating GET request to list pods: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while making GET request to list pods: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to list pods, status code: %d", resp.StatusCode)
+	}
+
+	var pods []models.Pod
+	if err := json.NewDecoder(resp.Body).Decode(&pods); err != nil {
+		return nil, fmt.Errorf("error while decoding response body: %w", err)
+	}
+	return pods, nil
+}
+
+func (c *Client) deletePod(podName string) error {
+	req, err := http.NewRequest("DELETE", c.buildURL("pods", podName), nil)
+	if err != nil {
+		return fmt.Errorf("error while creating DELETE request to delete pod: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error while making DELETE request to delete pod: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("failed to delete pod, status code: %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) updatePod(pod *models.Pod) (*models.Pod, error) {
+	body, err := json.Marshal(pod)
+	if err != nil {
+		return nil, fmt.Errorf("error while marshalling pod: %w", err)
+	}
+
+	req, err := http.NewRequest("PUT", c.buildURL("pods", pod.Name), bytes.NewBuffer(body))
+	if err != nil {
+		return nil, fmt.Errorf("error while creating PUT request to update pod: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while making PUT request to update pod: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to update pod, status code: %d", resp.StatusCode)
+	}
+
+	var updatedPod models.Pod
+	if err := json.NewDecoder(resp.Body).Decode(&updatedPod); err != nil {
+		return nil, fmt.Errorf("error while decoding response body: %w", err)
+	}
+	return &updatedPod, nil
+}
