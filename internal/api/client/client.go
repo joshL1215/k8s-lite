@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -169,7 +170,8 @@ func (c *Client) createPod(pod *models.Pod) (*models.Pod, error) {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", c.buildURL("pods"), bytes.NewBuffer(body))
+	urlStr := c.buildURL("api", "v1", "namespaces", pod.Namespace, "pods")
+	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating POST request to create pod: %w", err)
 	}
@@ -192,8 +194,13 @@ func (c *Client) createPod(pod *models.Pod) (*models.Pod, error) {
 	return &createdPod, nil
 }
 
-func (c *Client) getPod(podName string) (*models.Pod, error) {
-	req, err := http.NewRequest("GET", c.buildURL("pods", podName), nil)
+func (c *Client) getPod(namespace, podName string) (*models.Pod, error) {
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods", podName)
+	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to fetch pod: %w", err)
 	}
@@ -215,8 +222,13 @@ func (c *Client) getPod(podName string) (*models.Pod, error) {
 	return &fetchedPod, nil
 }
 
-func (c *Client) listPods() ([]models.Pod, error) {
-	req, err := http.NewRequest("GET", c.buildURL("pods"), nil)
+func (c *Client) listPods(namespace string) ([]models.Pod, error) {
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods")
+	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to list pods: %w", err)
 	}
@@ -238,8 +250,13 @@ func (c *Client) listPods() ([]models.Pod, error) {
 	return pods, nil
 }
 
-func (c *Client) deletePod(podName string) error {
-	req, err := http.NewRequest("DELETE", c.buildURL("pods", podName), nil)
+func (c *Client) deletePod(namespace, podName string) error {
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods", podName)
+	req, err := http.NewRequest("DELETE", urlStr, nil)
 	if err != nil {
 		return fmt.Errorf("error while creating DELETE request to delete pod: %w", err)
 	}
@@ -262,7 +279,8 @@ func (c *Client) updatePod(pod *models.Pod) (*models.Pod, error) {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
 	}
 
-	req, err := http.NewRequest("PUT", c.buildURL("pods", pod.Name), bytes.NewBuffer(body))
+	urlStr := c.buildURL("api", "v1", "namespaces", pod.Namespace, "pods", pod.Name)
+	req, err := http.NewRequest("PUT", urlStr, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating PUT request to update pod: %w", err)
 	}
@@ -283,4 +301,45 @@ func (c *Client) updatePod(pod *models.Pod) (*models.Pod, error) {
 		return nil, fmt.Errorf("error while decoding response body: %w", err)
 	}
 	return &updatedPod, nil
+}
+
+func (c *Client) watchPods(namespace string) (<-chan models.WatchEvent, error) {
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods?watch=true")
+	req, err := http.NewRequest("GET", urlStr, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while creating GET request to watch pods: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while making GET request to watch pods: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to watch pods, status code: %d", resp.StatusCode)
+	}
+
+	events := make(chan models.WatchEvent)
+	go func() {
+		defer resp.Body.Close()
+		defer close(events)
+
+		decoder := json.NewDecoder(resp.Body)
+
+		for {
+			var event models.WatchEvent
+			if err := decoder.Decode(&event); err != nil {
+				log.Printf("Error decoding watch event: %v", err)
+				return
+			}
+			if event.Object == "pod" {
+				events <- event
+			}
+		}
+	}()
+	return events, nil
 }
