@@ -1,9 +1,11 @@
 package apiserver
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joshL1215/k8s-lite/internal/api/models"
@@ -39,6 +41,12 @@ func (s *APIServer) createPodHandler(c *gin.Context) {
 		return
 	}
 	log.Printf("Created pod %s/%s successfully", pod.Namespace, pod.Name)
+
+	s.watchManager.Publish(namespace, WatchEvent{
+		Type: "ADDED",
+		Pod:  &pod,
+	})
+
 	c.JSON(201, pod)
 }
 
@@ -82,6 +90,12 @@ func (s *APIServer) updatePodHandler(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "Failed to update pod", "detail": err.Error()})
 		return
 	}
+	log.Printf("Updated pod %s/%s successfully", pod.Namespace, pod.Name)
+
+	s.watchManager.Publish(namespace, WatchEvent{
+		Type: "MODIFIED",
+		Pod:  &pod,
+	})
 
 	c.JSON(200, pod)
 }
@@ -99,14 +113,28 @@ func (s *APIServer) deletePodHandler(c *gin.Context) {
 		}
 		return
 	}
-
 	log.Printf("Pod %s/%s successfuly set for deletion", namespace, name)
+
+	s.watchManager.Publish(namespace, WatchEvent{
+		Type: "DELETED",
+		Pod: &models.Pod{
+			Name:      name,
+			Namespace: namespace,
+		},
+	})
+
 	c.JSON(200, gin.H{"message": fmt.Sprintf("Pod %s/%s successfully set for deletion", namespace, name)})
 }
 
 func (s *APIServer) listPodsHandler(c *gin.Context) {
-	namespace := c.Param("namespace")
+	watch := c.Query("watch")
 
+	if watch == "true" {
+		s.watchPods(c)
+		return
+	}
+
+	namespace := c.Param("namespace")
 	podList, err := s.store.ListPods(namespace)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Could not fetch pod list", "detail": err.Error()})
@@ -114,4 +142,37 @@ func (s *APIServer) listPodsHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, podList)
+}
+
+func (s *APIServer) watchPods(c *gin.Context) {
+	namespace := c.Param("namespace")
+
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.Header().Set("Transfer-Encoding", "chunked")
+	c.Writer.WriteHeader(200)
+
+	flusher, ok := c.Writer.(http.Flusher)
+	if !ok {
+		c.JSON(500, gin.H{"error": "Failed assertion"})
+	}
+
+	watchCh := s.watchManager.Subscribe(namespace)
+	defer s.watchManager.Unsubscribe(namespace, watchCh)
+
+	ctx := c.Request.Context()
+
+	for {
+		select {
+		case event := <-watchCh:
+			if err := json.NewEncoder(c.Writer).Encode(event); err != nil {
+				log.Printf("Error encoding watch event: %v", err)
+				return
+			}
+			flusher.Flush()
+
+		case <-ctx.Done():
+			log.Printf("Client connection closed for namespace %s", namespace)
+			return
+		}
+	}
 }
