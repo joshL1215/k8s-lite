@@ -20,7 +20,7 @@ type Client struct {
 func NewClient(urlStr string) (*Client, error) {
 	baseURL, err := url.Parse(urlStr)
 	if err != nil {
-		return nil, fmt.Errorf("error while parsing base URL: %w", err.Error())
+		return nil, fmt.Errorf("error while parsing base URL: %v", err.Error())
 	}
 	return &Client{
 		baseURL:    baseURL,
@@ -174,7 +174,7 @@ func (c *Client) CreatePod(pod *models.Pod) (*models.Pod, error) {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", pod.Namespace, "pods")
+	urlStr := c.buildURL("api", "v1", "namespace", pod.Namespace, "pods")
 	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating POST request to create pod: %w", err)
@@ -203,7 +203,7 @@ func (c *Client) GetPod(namespace, podName string) (*models.Pod, error) {
 		namespace = "default"
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods", podName)
+	urlStr := c.buildURL("api", "v1", "namespace", namespace, "pods", podName)
 	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to fetch pod: %w", err)
@@ -231,7 +231,7 @@ func (c *Client) ListPods(namespace string) ([]models.Pod, error) {
 		namespace = "default"
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods")
+	urlStr := c.buildURL("api", "v1", "namespace", namespace, "pods")
 	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to list pods: %w", err)
@@ -259,7 +259,7 @@ func (c *Client) DeletePod(namespace, podName string) error {
 		namespace = "default"
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods", podName)
+	urlStr := c.buildURL("api", "v1", "namespace", namespace, "pods", podName)
 	req, err := http.NewRequest("DELETE", urlStr, nil)
 	if err != nil {
 		return fmt.Errorf("error while creating DELETE request to delete pod: %w", err)
@@ -283,7 +283,7 @@ func (c *Client) UpdatePod(pod *models.Pod) (*models.Pod, error) {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", pod.Namespace, "pods", pod.Name)
+	urlStr := c.buildURL("api", "v1", "namespace", pod.Namespace, "pods", pod.Name)
 	req, err := http.NewRequest("PUT", urlStr, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating PUT request to update pod: %w", err)
@@ -312,7 +312,7 @@ func (c *Client) WatchPods(namespace string) (<-chan models.WatchEvent, error) {
 		namespace = "default"
 	}
 
-	urlStr := c.buildURL("api", "v1", "namespaces", namespace, "pods?watch=true")
+	urlStr := c.buildURL("api", "v1", "namespace", namespace, "pods") + "?watch=true"
 	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to watch pods: %w", err)
