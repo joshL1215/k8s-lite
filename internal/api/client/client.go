@@ -40,7 +40,7 @@ func (c *Client) buildURL(segments ...string) string {
 }
 
 // Node operations from client
-func (c *Client) createNode(node *models.Node) (*models.Node, error) {
+func (c *Client) CreateNode(node *models.Node) (*models.Node, error) {
 	body, err := json.Marshal(node)
 	if err != nil {
 		return nil, fmt.Errorf("error while marshalling node: %w", err)
@@ -69,7 +69,7 @@ func (c *Client) createNode(node *models.Node) (*models.Node, error) {
 	return &createdNode, nil
 }
 
-func (c *Client) getNode(nodeName string) (*models.Node, error) {
+func (c *Client) GetNode(nodeName string) (*models.Node, error) {
 	req, err := http.NewRequest("GET", c.buildURL("nodes", nodeName), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to fetch node: %w", err)
@@ -92,7 +92,7 @@ func (c *Client) getNode(nodeName string) (*models.Node, error) {
 	return &fetchedNode, nil
 }
 
-func (c *Client) listNodes() ([]models.Node, error) {
+func (c *Client) ListNodes() ([]models.Node, error) {
 	req, err := http.NewRequest("GET", c.buildURL("nodes"), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to list nodes: %w", err)
@@ -115,7 +115,7 @@ func (c *Client) listNodes() ([]models.Node, error) {
 	return nodes, nil
 }
 
-func (c *Client) deleteNode(nodeName string) error {
+func (c *Client) DeleteNode(nodeName string) error {
 	req, err := http.NewRequest("DELETE", c.buildURL("nodes", nodeName), nil)
 	if err != nil {
 		return fmt.Errorf("error while creating DELETE request to delete node: %w", err)
@@ -133,7 +133,7 @@ func (c *Client) deleteNode(nodeName string) error {
 	return nil
 }
 
-func (c *Client) updateNode(node *models.Node) (*models.Node, error) {
+func (c *Client) UpdateNode(node *models.Node) (*models.Node, error) {
 	body, err := json.Marshal(node)
 	if err != nil {
 		return nil, fmt.Errorf("error while marshalling node: %w", err)
@@ -164,7 +164,7 @@ func (c *Client) updateNode(node *models.Node) (*models.Node, error) {
 
 // Pod operations from client
 
-func (c *Client) createPod(pod *models.Pod) (*models.Pod, error) {
+func (c *Client) CreatePod(pod *models.Pod) (*models.Pod, error) {
 	body, err := json.Marshal(pod)
 	if err != nil {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
@@ -194,7 +194,7 @@ func (c *Client) createPod(pod *models.Pod) (*models.Pod, error) {
 	return &createdPod, nil
 }
 
-func (c *Client) getPod(namespace, podName string) (*models.Pod, error) {
+func (c *Client) GetPod(namespace, podName string) (*models.Pod, error) {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -222,7 +222,7 @@ func (c *Client) getPod(namespace, podName string) (*models.Pod, error) {
 	return &fetchedPod, nil
 }
 
-func (c *Client) listPods(namespace string) ([]models.Pod, error) {
+func (c *Client) ListPods(namespace string) ([]models.Pod, error) {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -250,7 +250,7 @@ func (c *Client) listPods(namespace string) ([]models.Pod, error) {
 	return pods, nil
 }
 
-func (c *Client) deletePod(namespace, podName string) error {
+func (c *Client) DeletePod(namespace, podName string) error {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -273,7 +273,7 @@ func (c *Client) deletePod(namespace, podName string) error {
 	return nil
 }
 
-func (c *Client) updatePod(pod *models.Pod) (*models.Pod, error) {
+func (c *Client) UpdatePod(pod *models.Pod) (*models.Pod, error) {
 	body, err := json.Marshal(pod)
 	if err != nil {
 		return nil, fmt.Errorf("error while marshalling pod: %w", err)
@@ -303,7 +303,7 @@ func (c *Client) updatePod(pod *models.Pod) (*models.Pod, error) {
 	return &updatedPod, nil
 }
 
-func (c *Client) watchPods(namespace string) (<-chan models.WatchEvent, error) {
+func (c *Client) WatchPods(namespace string) (<-chan models.WatchEvent, error) {
 	if namespace == "" {
 		namespace = "default"
 	}
