@@ -13,9 +13,10 @@ type watchManager struct {
 }
 
 type WatchEvent struct {
-	Type string       `json:"eventType"`
-	Pod  *models.Pod  `json:"pod,omitempty"`
-	Node *models.Node `json:"node,omitempty"`
+	Type   string       `json:"eventType"`
+	Object string       `json:"objectType"`
+	Pod    *models.Pod  `json:"pod,omitempty"`
+	Node   *models.Node `json:"node,omitempty"`
 }
 
 func NewWatchManager() *watchManager {
