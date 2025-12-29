@@ -39,6 +39,10 @@ func (c *Client) buildURL(segments ...string) string {
 	return newURL.String()
 }
 
+func (c *Client) ShowURL() string {
+	return c.baseURL.String()
+}
+
 // Node operations from client
 func (c *Client) CreateNode(node *models.Node) (*models.Node, error) {
 	body, err := json.Marshal(node)
