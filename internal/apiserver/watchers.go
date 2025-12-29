@@ -9,25 +9,18 @@ import (
 
 type watchManager struct {
 	mu       sync.Mutex
-	watchers map[string][]chan WatchEvent
-}
-
-type WatchEvent struct {
-	Type   string       `json:"eventType"`
-	Object string       `json:"objectType"`
-	Pod    *models.Pod  `json:"pod,omitempty"`
-	Node   *models.Node `json:"node,omitempty"`
+	watchers map[string][]chan models.WatchEvent
 }
 
 func NewWatchManager() *watchManager {
 	return &watchManager{
-		watchers: make(map[string][]chan WatchEvent),
+		watchers: make(map[string][]chan models.WatchEvent),
 	}
 }
 
-func (wm *watchManager) Publish(namespace string, event WatchEvent) {
+func (wm *watchManager) Publish(namespace string, event models.WatchEvent) {
 	wm.mu.Lock()
-	subscribers := append([]chan WatchEvent(nil), wm.watchers[namespace]...) // good to use this mutex pattern since the entire function could be quite slow
+	subscribers := append([]chan models.WatchEvent(nil), wm.watchers[namespace]...) // good to use this mutex pattern since the entire function could be quite slow
 	wm.mu.Unlock()
 
 	for _, ch := range subscribers {
@@ -39,16 +32,16 @@ func (wm *watchManager) Publish(namespace string, event WatchEvent) {
 	}
 }
 
-func (wm *watchManager) Subscribe(namespace string) chan WatchEvent {
+func (wm *watchManager) Subscribe(namespace string) chan models.WatchEvent {
 	wm.mu.Lock()
 	defer wm.mu.Unlock()
 
-	ch := make(chan WatchEvent, 100)
+	ch := make(chan models.WatchEvent, 100)
 	wm.watchers[namespace] = append(wm.watchers[namespace], ch)
 	return ch
 }
 
-func (wm *watchManager) Unsubscribe(namespace string, ch chan WatchEvent) {
+func (wm *watchManager) Unsubscribe(namespace string, ch chan models.WatchEvent) {
 	wm.mu.Lock()
 	defer wm.mu.Unlock()
 
