@@ -10,8 +10,9 @@ import (
 const DefaultNamespace = "default"
 
 type APIServer struct {
-	router *gin.Engine
-	store  store.StoreInterface // having an interface here makes it store-implementation-agnostic
+	router       *gin.Engine
+	store        store.StoreInterface // having an interface here makes it store-implementation-agnostic
+	watchManager watchManager
 }
 
 func (s *APIServer) Serve(port string) {
@@ -25,7 +26,7 @@ func (s *APIServer) registerRoutes() {
 	podsGroup := s.router.Group("/api/v1/namespace/:namespace/pods") // version APIs for backwards compatability
 	{
 		podsGroup.POST("", s.createPodHandler)
-		podsGroup.GET("", s.listPodsHandler)
+		podsGroup.GET("", s.listPodsHandler) // includes a query parameter ?watch= to open a long lived TCP connection for watching
 		podsGroup.GET("/:podname", s.getPodHandler)
 		podsGroup.PUT("/:podname", s.updatePodHandler)
 		podsGroup.DELETE(":podname", s.deletePodHandler)
@@ -43,8 +44,9 @@ func (s *APIServer) registerRoutes() {
 
 func CreateAPIServer(s store.StoreInterface) *APIServer {
 	apiServer := &APIServer{
-		router: gin.Default(),
-		store:  s,
+		router:       gin.Default(),
+		store:        s,
+		watchManager: *NewWatchManager(),
 	}
 	apiServer.registerRoutes()
 	return apiServer

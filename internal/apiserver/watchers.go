@@ -18,6 +18,12 @@ type WatchEvent struct {
 	Node *models.Node `json:"node,omitempty"`
 }
 
+func NewWatchManager() *watchManager {
+	return &watchManager{
+		watchers: make(map[string][]chan WatchEvent),
+	}
+}
+
 func (wm *watchManager) Publish(namespace string, event WatchEvent) {
 	wm.mu.Lock()
 	subscribers := append([]chan WatchEvent(nil), wm.watchers[namespace]...) // good to use this mutex pattern since the entire function could be quite slow
