@@ -43,9 +43,9 @@ func (s *APIServer) createPodHandler(c *gin.Context) {
 	log.Printf("Created pod %s/%s successfully", pod.Namespace, pod.Name)
 
 	s.watchManager.Publish(namespace, models.WatchEvent{
-		Type:   "ADDED",
-		Object: "pod",
-		Pod:    &pod,
+		EventType:   "ADDED",
+		EventObject: "pod",
+		Pod:         &pod,
 	})
 
 	c.JSON(201, pod)
@@ -94,9 +94,9 @@ func (s *APIServer) updatePodHandler(c *gin.Context) {
 	log.Printf("Updated pod %s/%s successfully", pod.Namespace, pod.Name)
 
 	s.watchManager.Publish(namespace, models.WatchEvent{
-		Type:   "MODIFIED",
-		Object: "pod",
-		Pod:    &pod,
+		EventType:   "MODIFIED",
+		EventObject: "pod",
+		Pod:         &pod,
 	})
 
 	c.JSON(200, pod)
@@ -118,8 +118,8 @@ func (s *APIServer) deletePodHandler(c *gin.Context) {
 	log.Printf("Pod %s/%s successfuly set for deletion", namespace, name)
 
 	s.watchManager.Publish(namespace, models.WatchEvent{
-		Type:   "DELETED",
-		Object: "pod",
+		EventType:   "DELETED",
+		EventObject: "pod",
 		Pod: &models.Pod{
 			Name:      name,
 			Namespace: namespace,
