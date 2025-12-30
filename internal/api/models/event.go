@@ -1,8 +1,17 @@
 package models
 
+type EventType string
+type EventObject string
+
+const (
+	AddEvent          EventType = "ADDED"
+	ModificationEvent EventType = "MODIFIED"
+	DeletionEvent     EventType = "DELETED"
+)
+
 type WatchEvent struct {
-	EventType   string `json:"eventType"`
-	EventObject string `json:"objectType"`
-	Pod         *Pod   `json:"pod,omitempty"`
-	Node        *Node  `json:"node,omitempty"`
+	EventType   EventType   `json:"eventType"`
+	EventObject EventObject `json:"objectType"`
+	Pod         *Pod        `json:"pod,omitempty"`
+	Node        *Node       `json:"node,omitempty"`
 }

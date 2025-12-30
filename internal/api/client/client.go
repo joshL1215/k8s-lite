@@ -340,7 +340,7 @@ func (c *Client) WatchPods(namespace string) (<-chan models.WatchEvent, error) {
 				log.Printf("Error decoding watch event: %v", err)
 				return
 			}
-			if event.Object == "pod" {
+			if event.EventObject == "pod" {
 				events <- event
 			}
 		}
