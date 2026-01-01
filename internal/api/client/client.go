@@ -96,7 +96,7 @@ func (c *Client) GetNode(nodeName string) (*models.Node, error) {
 	return &fetchedNode, nil
 }
 
-func (c *Client) ListNodes() ([]models.Node, error) {
+func (c *Client) ListNodes(filterStatus models.NodeStatus) ([]models.Node, error) {
 	req, err := http.NewRequest("GET", c.buildURL("nodes"), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to list nodes: %w", err)
@@ -116,7 +116,14 @@ func (c *Client) ListNodes() ([]models.Node, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&nodes); err != nil {
 		return nil, fmt.Errorf("error while decoding response body: %w", err)
 	}
-	return nodes, nil
+
+	var filteredNodes []models.Node
+	for _, node := range nodes {
+		if node.Status == filterStatus {
+			filteredNodes = append(filteredNodes, node)
+		}
+	}
+	return filteredNodes, nil
 }
 
 func (c *Client) DeleteNode(nodeName string) error {
@@ -226,7 +233,7 @@ func (c *Client) GetPod(namespace, podName string) (*models.Pod, error) {
 	return &fetchedPod, nil
 }
 
-func (c *Client) ListPods(namespace string) ([]models.Pod, error) {
+func (c *Client) ListPods(namespace string, filterPhase models.PodPhase) ([]models.Pod, error) {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -251,7 +258,14 @@ func (c *Client) ListPods(namespace string) ([]models.Pod, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&pods); err != nil {
 		return nil, fmt.Errorf("error while decoding response body: %w", err)
 	}
-	return pods, nil
+
+	var filteredPods []models.Pod
+	for _, pod := range pods {
+		if pod.Phase == filterPhase {
+			filteredPods = append(filteredPods, pod)
+		}
+	}
+	return filteredPods, nil
 }
 
 func (c *Client) DeletePod(namespace, podName string) error {
