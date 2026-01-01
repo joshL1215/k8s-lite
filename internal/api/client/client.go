@@ -259,6 +259,10 @@ func (c *Client) ListPods(namespace string, filterPhase models.PodPhase) ([]mode
 		return nil, fmt.Errorf("error while decoding response body: %w", err)
 	}
 
+	if filterPhase == "" {
+		return pods, nil
+	}
+
 	var filteredPods []models.Pod
 	for _, pod := range pods {
 		if pod.Phase == filterPhase {
