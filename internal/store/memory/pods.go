@@ -55,11 +55,6 @@ func (s *InMemoryStore) UpdatePod(pod *models.Pod) error {
 
 	s.pods[key] = pod
 	return nil
-
-	// TODO: Needs handling of DeletionTimestamp or terminating pods
-	// Needs phase restrictions for terminating pods
-	// Needs protection against changing NodeName during termination
-	// Needs guidance to use DeletePod for deletion updates
 }
 
 // DeletePod
