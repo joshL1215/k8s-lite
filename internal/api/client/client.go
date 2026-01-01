@@ -332,19 +332,22 @@ func (c *Client) WatchPods(namespace string) (<-chan models.WatchEvent, error) {
 		return nil, fmt.Errorf("error while creating GET request to watch pods: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while making GET request to watch pods: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to watch pods, status code: %d", resp.StatusCode)
-	}
-
 	events := make(chan models.WatchEvent)
 	go func() {
-		defer resp.Body.Close()
+
 		defer close(events)
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			log.Printf("error while making GET request to watch pods: %w", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("failed to watch pods, status code: %d", resp.StatusCode)
+			return
+		}
 
 		decoder := json.NewDecoder(resp.Body)
 
