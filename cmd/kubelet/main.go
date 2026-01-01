@@ -1,1 +1,1 @@
-package kubelet
+package main
