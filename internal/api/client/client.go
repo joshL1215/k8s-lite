@@ -50,7 +50,7 @@ func (c *Client) CreateNode(node *models.Node) (*models.Node, error) {
 		return nil, fmt.Errorf("error while marshalling node: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", c.buildURL("nodes"), bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", c.buildURL("api", "v1", "nodes"), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating POST request to register node: %w", err)
 	}
@@ -74,7 +74,7 @@ func (c *Client) CreateNode(node *models.Node) (*models.Node, error) {
 }
 
 func (c *Client) GetNode(nodeName string) (*models.Node, error) {
-	req, err := http.NewRequest("GET", c.buildURL("nodes", nodeName), nil)
+	req, err := http.NewRequest("GET", c.buildURL("api", "v1", "nodes", nodeName), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to fetch node: %w", err)
 	}
@@ -97,7 +97,7 @@ func (c *Client) GetNode(nodeName string) (*models.Node, error) {
 }
 
 func (c *Client) ListNodes(filterStatus models.NodeStatus) ([]models.Node, error) {
-	req, err := http.NewRequest("GET", c.buildURL("nodes"), nil)
+	req, err := http.NewRequest("GET", c.buildURL("api", "v1", "nodes"), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating GET request to list nodes: %w", err)
 	}
@@ -127,7 +127,7 @@ func (c *Client) ListNodes(filterStatus models.NodeStatus) ([]models.Node, error
 }
 
 func (c *Client) DeleteNode(nodeName string) error {
-	req, err := http.NewRequest("DELETE", c.buildURL("nodes", nodeName), nil)
+	req, err := http.NewRequest("DELETE", c.buildURL("api", "v1", "nodes", nodeName), nil)
 	if err != nil {
 		return fmt.Errorf("error while creating DELETE request to delete node: %w", err)
 	}
@@ -150,7 +150,7 @@ func (c *Client) UpdateNode(node *models.Node) (*models.Node, error) {
 		return nil, fmt.Errorf("error while marshalling node: %w", err)
 	}
 
-	req, err := http.NewRequest("PUT", c.buildURL("nodes", node.Name), bytes.NewBuffer(body))
+	req, err := http.NewRequest("PUT", c.buildURL("api", "v1", "nodes", node.Name), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error while creating PUT request to update node: %w", err)
 	}
@@ -339,7 +339,7 @@ func (c *Client) WatchPods(namespace string) (<-chan models.WatchEvent, error) {
 
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			log.Printf("error while making GET request to watch pods: %w", err)
+			log.Printf("error while making GET request to watch pods: %v", err)
 			return
 		}
 		defer resp.Body.Close()
