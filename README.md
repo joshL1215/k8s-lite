@@ -1,2 +1,2 @@
 # k8s-lite
-My attempt at Kubernetes (lite) from scratch
+Simplified implementation of Kubernetes
